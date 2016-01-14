@@ -8,7 +8,7 @@ import pickle
 
 runtags=[]
 
-recall_type=2 #unweighted recall line[2], weighted recall line[3], for now, unweighted recall first....
+recall_type=3 #unweighted recall line[2], weighted recall line[3], for now, unweighted recall first....
 
 #get system runtag list
 for filename in os.listdir('run_results/'):
@@ -34,7 +34,7 @@ ax.plot(recall, precision, 'go',alpha=0.5,label='single run')
 recall=[]
 precision=[]
 
-recall_type=3
+recall_type=4
 file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union.txt','r')
 lines=file_input.readlines()
 for i in range(1,len(lines)):
@@ -47,8 +47,6 @@ ax.plot(recall, precision, 'ro',alpha=0.5,label='union')
 
 recall=[]
 precision=[]
-
-recall_type=3
 file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_intersection.txt','r')
 lines=file_input.readlines()
 for i in range(1,len(lines)):
@@ -73,11 +71,11 @@ plt.clabel(CS, inline=1, fontsize=10)
 plt.axis([0, 1.0, 0, 1.0])
 plt.xticks(np.arange(0,1.1,0.2))
 plt.yticks(np.arange(0,1.1,0.2))
-plt.xlabel("Unweighted recall",fontsize=15)
+plt.xlabel("eighted recall",fontsize=15)
 plt.ylabel("Precision",fontsize=15)
-plt.title("Precision vs. unweighted recall",fontsize=15)
+plt.title("Precision vs. weighted recall",fontsize=15)
 
-plt.savefig('Precision vs. unweighted recall.png')
+plt.savefig('Precision vs. weighted recall.png')
 plt.show()
 plt.close()
 
