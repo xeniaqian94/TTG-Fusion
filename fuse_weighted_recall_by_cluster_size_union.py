@@ -43,6 +43,7 @@ for line in lines:
    if topic_ind not in clusters_run_dt:
       clusters_run_dt[topic_ind] = Set()
    clusters_run_dt[topic_ind].add(line[2])
+   
 lines = file_run2.readlines()
 for line in lines:
    line = line.strip().split()
