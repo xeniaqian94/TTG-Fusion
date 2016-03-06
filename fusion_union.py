@@ -215,7 +215,8 @@ if __name__=="__main__":
    for filename in os.listdir(run_results):
       runtags.append(filename)
    # recall_path="fuse_recall_results_on_official_clusters_by_cluster_size_union.txt"
-   runtags.remove('.DS_Store')
+   if '.DS_Store' in runtags:
+      runtags.remove('.DS_Store')
    start = timeit.default_timer()
    for i in range(len(runtags)):
       for j in range(i+1,len(runtags)):
@@ -230,7 +231,7 @@ if __name__=="__main__":
 
    # w2v=load_bin_vec('glove.twitter.27B.25d.txt') 
 
-   word_vecs=build_word_vector_matrix('glove.twitter.27B.25d.txt',1193515)
+   word_vecs=build_word_vector_matrix('glove.twitter.27B.25d.txt',1193517)
 
 
    print "word2vec loaded!"
