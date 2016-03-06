@@ -1,0 +1,7 @@
+runtag1         	runtag2         	topic	unweighted_recall	weighted_recall	precision	f1       
+1unique2        	QUQEd5t25TTgBL  	all 	      0.2652	      0.4714	    0.3006    0.3671
+1unique2        	TTGPKUICST3     	all 	      0.3357	      0.5301	    0.3336    0.4095
+1unique2        	wistudt2qd      	all 	      0.1130	      0.3093	    0.2202    0.2572
+QUQEd5t25TTgBL  	TTGPKUICST3     	all 	      0.3725	      0.5707	    0.2888    0.3835
+QUQEd5t25TTgBL  	wistudt2qd      	all 	      0.2671	      0.4749	    0.2527    0.3299
+TTGPKUICST3     	wistudt2qd      	all 	      0.3270	      0.5236	    0.3095    0.3890

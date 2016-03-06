@@ -5,8 +5,9 @@ import os
 import timeit
 import numpy as np
 import codecs
+from scipy import spatial
 
-#usage: python fusion_union.py -q qrels2014.txt -c cluster_official.json -o fuse_union.txt -r run_results_sub -t Data/raw_tweet_with_cleaned_tokens
+#usage: python fusion_union.py -q qrels2014.txt -c cluster_official.json -o fuse_union.txt -r run_results_sub -t Data/raw_tweet_with_cleaned_tokens -d 25
 
 
 # Added tokenizer tag, for use ACL or TREC tokenizer
@@ -49,8 +50,51 @@ def groundtruthDeduplicate(list_before_filter,clusters_dt,topic_ind):
          fused_run_dt.append(tweet)
    return fused_run_dt
 
+def sentenceRedundency(list1,list2,word_vecs,dimension):
 
-def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict):
+   sumVector=[0]*dimension
+   count=0
+   for word in list1:
+      if word in word_vecs:
+         sumVector=sumVector+word_vecs[word]
+         count=count+1
+   if count > 0:
+      avgVec1=sumVector/count
+   else:
+      avgVec1=None
+
+   sumVector=[0]*dimension
+   count=0
+   for word in list2:
+      if word in word_vecs:
+         sumVector=sumVector+word_vecs[word]
+         count=count+1
+   if count > 0:
+      avgVec2=sumVector/count
+   else:
+      avgVec2=None
+
+   if avgVec1!=None and avgVec2!=None:
+      return (1.0-spatial.distance.cosine(avgVec1,avgVec2))
+   else:
+      return 0
+
+
+
+def gloveDeduplicate(list_before_filter,tweetDict,word_vecs,threshold,dimension):
+   fused_run_dt=[]
+
+   for tweet in list_before_filter:
+      flag=1
+      for previous_tweet in fused_run_dt:
+         if sentenceRedundency(tweetDict[previous_tweet],tweetDict[tweet],word_vecs,dimension)>threshold:
+            flag=0
+      if flag==1:
+         fused_run_dt.append(tweet)
+
+   return fused_run_dt
+
+def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict,word_vecs,threshold,dimension):
    run_path1 = "run_results/"+runtag1
    run_path2 = "run_results/"+runtag2
    clusters_run_dt = {}
@@ -88,11 +132,11 @@ def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict):
       clusters_dt[topic_ind] = clusters_json
 
 
-      fused_run_dt=groundtruthDeduplicate(clusters_run_dt[topic_ind],clusters_dt,topic_ind)
+      # fused_run_dt=groundtruthDeduplicate(clusters_run_dt[topic_ind],clusters_dt,topic_ind)
       # fused_run_dt=clusters_run_dt[topic_ind]
 
-      # fused_run_dt=gloveDeduplicate(clusters_run_dt[topic_ind],tweetDict)
-
+      fused_run_dt=gloveDeduplicate(clusters_run_dt[topic_ind],tweetDict,word_vecs,threshold,dimension)
+      
 
       for cluster in clusters_dt[topic_ind]:
          weight = 0
@@ -118,39 +162,12 @@ def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict):
    precision_mean = precision_total / len(clusters_dt)
    unweighted_recall_mean = unweighted_recall_total / len(clusters_dt)
    weighted_recall_mean = weighted_recall_total / len(clusters_dt)
-   file_write.write(run_path1[run_path1.rindex("/") + 1:].ljust(16) + "\t" + run_path2[run_path2.rindex("/") + 1:].ljust(16) + "\tall".ljust(5) + "\t" + "%12.4f" % unweighted_recall_mean + "\t" + "%12.4f" % weighted_recall_mean + "\t" + "%10.4f" % precision_mean+"\n")
+   f1=2*precision_mean*weighted_recall_mean/(precision_mean+weighted_recall_mean)
+   file_write.write(run_path1[run_path1.rindex("/") + 1:].ljust(16) + "\t" + run_path2[run_path2.rindex("/") + 1:].ljust(16) + "\tall".ljust(5) + "\t" + "%12.4f" % unweighted_recall_mean + "\t" + "%12.4f" % weighted_recall_mean + "\t" + "%10.4f" % precision_mean+ "%10.4f" % f1+"\n")
    file_run1.close()
    file_run2.close()
 
-def load_bin_vec(fname):
-    """
-    Loads 300x1 word vecs from Google (Mikolov) word2vec
-    """
-    word_vecs = {}
-    with open(fname, "rb") as f:
-        header = f.readline()
-        vocab_size, layer1_size = map(int, header.split())
-        binary_len = np.dtype('float32').itemsize * layer1_size
-        for line in xrange(vocab_size):
-            word = []
-            while True:
-                ch = f.read(1)
-                if ch == ' ':
-                    word = ''.join(word)
-                    break
-                if ch != '\n':
-                    word.append(ch)
-            word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')
-
-            if line%10000==0:
-               print line
-            # if word in vocab:
-            #    word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')  
-            # else:
-            #     f.read(binary_len)
-    return word_vecs
-
-def build_word_vector_matrix(vector_file, n_words):
+def load_vec(vector_file, n_words):
         '''Read a GloVe array from sys.argv[1] and return its vectors and labels as arrays'''
         # numpy_arrays = []
         # labels_array = []
@@ -162,8 +179,8 @@ def build_word_vector_matrix(vector_file, n_words):
                            word_vecs[sr[0]]=np.array([float(i) for i in sr[1:]]) 
                            # labels_array.append(sr[0])
                            # numpy_arrays.append( np.array([float(i) for i in sr[1:]]) )
-                        if c%10000==0:
-                           print c/10000,sr[0]
+                        # if c%10000==0:
+                        #    print c/10000,sr[0]
                         if c == n_words:
                                 return word_vecs
 
@@ -180,6 +197,7 @@ if __name__=="__main__":
    parser.add_argument('-r',required=True,metavar='runresults',help='runresults')
    parser.add_argument('-t', required=True, metavar='tweetfile', help='tweetfile')
    parser.add_argument('-d', required=True, metavar='dimension', help='dimension')
+   # parser.add_argument('-s',required=True,metavar='threshold',help='threshold')
 
 
    args = parser.parse_args()
@@ -187,8 +205,15 @@ if __name__=="__main__":
    clusters_path = vars(args)['c']
    recall_path=vars(args)['o']
    run_results=vars(args)['r']
+   if run_results="run_results":
+      run_results_label="all"
+   else:
+      run_results_label="sub"
    tweetFile=vars(args)['t']
    dimension=vars(args)['d']
+   # threshold=float(vars(args)['s'])
+
+   
 
    qrels_dt = {}
    file_qrels = open(file_qrels_path, "r")
@@ -209,8 +234,16 @@ if __name__=="__main__":
 
    tweetDict = extractTweet(tweetFile)
    print len(tweetDict)
-   file_write=open(recall_path,'w')
-   file_write.write("runtag1".ljust(16) + "\t"+"runtag2".ljust(16) + "\ttopic\tunweighted_recall weighted_recall precision\n")
+   print tweetDict['313138436146094081']
+   # w2v=load_bin_vec('glove.twitter.27B.25d.txt') 
+   start = timeit.default_timer()
+   word_vecs=load_vec('glove.twitter.27B.'+dimension+'d.txt',1193517)
+   stop = timeit.default_timer()
+   print "Read word vector cost "+str(stop - start)+" seconds"
+
+   print "word2vec loaded!"
+   print "num words already in word2vec: " + str(len(word_vecs))
+
 
    runtags=[]
 
@@ -221,28 +254,25 @@ if __name__=="__main__":
    if '.DS_Store' in runtags:
       runtags.remove('.DS_Store')
    start = timeit.default_timer()
-   for i in range(len(runtags)):
-      for j in range(i+1,len(runtags)):
-         print runtags[i],runtags[j]
-         calRecallPrecision(runtags[i],runtags[j],topics,file_write,tweetDict)
+
+   thresholds=[0.7,0.8,0.85,0.9,0.95,0.97,0.99]
+
+   for threshold in thresholds:
+      recall_path_new=recall_path[0:recall_path.index(".txt")]+"_"+run_results_label+"_"+str(threshold)+"_"+str(dimension)+".txt"
+      file_write=open(recall_path_new,'w')
+      file_write.write("runtag1".ljust(16) + "\t"+"runtag2".ljust(16) + "\ttopic".ljust(5)+"\tunweighted_recall".ljust(13)+"\tweighted_recall".ljust(12)+"\tprecision".ljust(10)+"\tf1".ljust(10)+"\n")
+      for i in range(len(runtags)):
+         for j in range(i+1,len(runtags)):
+            print runtags[i],runtags[j]     
+            calRecallPrecision(runtags[i],runtags[j],topics,file_write,tweetDict,word_vecs,threshold,int(dimension))
+      file_write.close()
 
    stop = timeit.default_timer()
-   print str(stop - start)+" seconds"
+   print "deduplication for that many pairs used "+str(stop - start)+" seconds"
 
    file_clusters.close()
    file_write.close()
 
-   # w2v=load_bin_vec('glove.twitter.27B.25d.txt') 
-   start = timeit.default_timer()
-   word_vecs=build_word_vector_matrix('glove.twitter.27B.'+dimension+'d.txt',1193517)
-   stop = timeit.default_timer()
-   print "Read word vector cost "+str(stop - start)+" seconds"
-
-   print "word2vec loaded!"
-   print "num words already in word2vec: " + str(len(word_vecs))
-
-   print word_vecs['<user>']
-   print " "
    
 
 

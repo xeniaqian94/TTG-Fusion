@@ -6,6 +6,12 @@ import numpy as np
 from scipy import stats
 import pickle
 
+parser = argparse.ArgumentParser(description='Tweet Timeline Generation (TTG) evaluation script (version 1.0)')
+parser.add_argument('-s', required=True, metavar='threshold', help='qrels file')
+parser.add_argument('-d', required=True, metavar='dimension', help='cluster anotations')
+args = parser.parse_args()
+threshold = vars(args)['s']
+dimension = vars(args)['d']
 runtags=[]
 
 recall_type=4 #unweighted recall line[2], weighted recall line[3], for now, unweighted recall first....
@@ -16,6 +22,16 @@ for filename in os.listdir('run_results/'):
 
 runtags.remove('.DS_Store')
 fig, ax = plt.subplots()
+
+union_file="fuse_union_simple.txt"
+runtags=set()
+file_input=open(union_file,'r')
+lines=file_input.readlines()
+for i in range(1,len(lines)):
+   line=lines[i].strip().split()
+   runtags.add(line[0])
+   runtags.add(line[1])
+runtags=list(runtags)
 
 
 recall=[]
@@ -36,7 +52,8 @@ recall=[]
 precision=[]
 
 recall_type=4
-file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union.txt','r')
+# file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union.txt','r')
+file_input=open('fuse_union_simple.txt','r')
 lines=file_input.readlines()
 for i in range(1,len(lines)):
    line=lines[i].strip().split()
@@ -46,24 +63,25 @@ for i in range(1,len(lines)):
 
 ax.plot(recall, precision, 'ro',alpha=0.5,label='union')
 
-recall=[]
-precision=[]
-file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_intersection.txt','r')
-lines=file_input.readlines()
-for i in range(1,len(lines)):
-   line=lines[i].strip().split()
-   if line[2]=="all":
-      recall.append(float(line[recall_type]))
-      precision.append(float(line[5]))
+# recall=[]
+# precision=[]
+# file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_intersection.txt','r')
+# lines=file_input.readlines()
+# for i in range(1,len(lines)):
+#    line=lines[i].strip().split()
+#    if line[2]=="all":
+#       recall.append(float(line[recall_type]))
+#       precision.append(float(line[5]))
 
-ax.plot(recall, precision, 'yo',alpha=0.3,label='intersection')
-ax.legend(loc=1,numpoints=1)
+# ax.plot(recall, precision, 'yo',alpha=0.3,label='intersection')
+# ax.legend(loc=1,numpoints=1)
 # (alpha=0.5)
 
 
 recall=[]
 precision=[]
-file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
+# file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
+file_input=open('fuse_union_'+threshold+'_'+dimension+'.txt','r')
 lines=file_input.readlines()
 for i in range(1,len(lines)):
    line=lines[i].strip().split()
@@ -71,7 +89,21 @@ for i in range(1,len(lines)):
       recall.append(float(line[recall_type]))
       precision.append(float(line[5]))
 
-ax.plot(recall, precision, 'bo',alpha=0.3,label='union deduplicate (upperbound)')
+ax.plot(recall, precision, 'bo',alpha=0.3,label=str('union '+threshold+' '+dimension))
+ax.legend(loc=1,numpoints=1)
+
+recall=[]
+precision=[]
+# file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
+file_input=open('fuse_union_groundtruth.txt','r')
+lines=file_input.readlines()
+for i in range(1,len(lines)):
+   line=lines[i].strip().split()
+   if line[2]=="all":
+      recall.append(float(line[recall_type]))
+      precision.append(float(line[5]))
+
+ax.plot(recall, precision, 'mo',alpha=0.3,label='union deduplicate (groundtruth)')
 ax.legend(loc=1,numpoints=1)
 
 
@@ -91,7 +123,7 @@ plt.xlabel("Weighted recall",fontsize=15)
 plt.ylabel("Precision",fontsize=15)
 plt.title("Precision vs. weighted recall",fontsize=15)
 
-plt.savefig('Precision vs. weighted recall.png')
+plt.savefig('Precision vs. weighted recall_'+threshold+'_'+dimension+'.png')
 plt.show()
 plt.close()
 
