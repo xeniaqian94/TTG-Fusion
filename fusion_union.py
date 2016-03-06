@@ -179,6 +179,8 @@ if __name__=="__main__":
    parser.add_argument('-o', required=True, metavar='recall_path',help='run tag')
    parser.add_argument('-r',required=True,metavar='runresults',help='runresults')
    parser.add_argument('-t', required=True, metavar='tweetfile', help='tweetfile')
+   parser.add_argument('-d', required=True, metavar='dimension', help='dimension')
+
 
    args = parser.parse_args()
    file_qrels_path = vars(args)['q']
@@ -186,6 +188,7 @@ if __name__=="__main__":
    recall_path=vars(args)['o']
    run_results=vars(args)['r']
    tweetFile=vars(args)['t']
+   dimension=vars(args)['d']
 
    qrels_dt = {}
    file_qrels = open(file_qrels_path, "r")
@@ -230,9 +233,10 @@ if __name__=="__main__":
    file_write.close()
 
    # w2v=load_bin_vec('glove.twitter.27B.25d.txt') 
-
-   word_vecs=build_word_vector_matrix('glove.twitter.27B.25d.txt',1193517)
-
+   start = timeit.default_timer()
+   word_vecs=build_word_vector_matrix('glove.twitter.27B.'+dimension+'d.txt',1193517)
+   stop = timeit.default_timer()
+   print "Read word vector cost "+str(stop - start)+" seconds"
 
    print "word2vec loaded!"
    print "num words already in word2vec: " + str(len(word_vecs))
