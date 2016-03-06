@@ -8,24 +8,25 @@ import pickle
 
 runtags=[]
 
-recall_type=3 #unweighted recall line[2], weighted recall line[3], for now, unweighted recall first....
+recall_type=4 #unweighted recall line[2], weighted recall line[3], for now, unweighted recall first....
 
 #get system runtag list
 for filename in os.listdir('run_results/'):
    runtags.append(filename)
 
-
+runtags.remove('.DS_Store')
 fig, ax = plt.subplots()
+
+
 recall=[]
 precision=[]
-
 for i in runtags:
    file_input=open('recall_results_on_official_clusters_by_cluster_size/'+i+'.txt','r')
    lines=file_input.readlines()
    for i in range(1,len(lines)):
       line=lines[i].strip().split()
       if line[1]=="all":
-         recall.append(line[recall_type])
+         recall.append(line[recall_type-1])
          precision.append(line[4])
 
 ax.plot(recall, precision, 'go',alpha=0.5,label='single run')
@@ -59,6 +60,21 @@ ax.plot(recall, precision, 'yo',alpha=0.3,label='intersection')
 ax.legend(loc=1,numpoints=1)
 # (alpha=0.5)
 
+
+recall=[]
+precision=[]
+file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
+lines=file_input.readlines()
+for i in range(1,len(lines)):
+   line=lines[i].strip().split()
+   if line[2]=="all":
+      recall.append(float(line[recall_type]))
+      precision.append(float(line[5]))
+
+ax.plot(recall, precision, 'bo',alpha=0.3,label='union deduplicate (upperbound)')
+ax.legend(loc=1,numpoints=1)
+
+
 x=np.arange(0.01,1.1,0.01)
 y=np.arange(0.01,1.1,0.01)
 X,Y=np.meshgrid(x,y)
@@ -71,7 +87,7 @@ plt.clabel(CS, inline=1, fontsize=10)
 plt.axis([0, 1.0, 0, 1.0])
 plt.xticks(np.arange(0,1.1,0.2))
 plt.yticks(np.arange(0,1.1,0.2))
-plt.xlabel("eighted recall",fontsize=15)
+plt.xlabel("Weighted recall",fontsize=15)
 plt.ylabel("Precision",fontsize=15)
 plt.title("Precision vs. weighted recall",fontsize=15)
 

@@ -10,16 +10,18 @@ parser.add_argument('-c', required=True, metavar='clusters', help='cluster anota
 # parser.add_argument('-r', required=True, metavar='run', help='run file')
 parser.add_argument('-a', required=True, metavar='runtag1',help='run tag')
 parser.add_argument('-b', required=True, metavar='runtag2',help='run tag')
+parser.add_argument('-r', required=True, metavar='recall_path',help='run tag')
 
 args = parser.parse_args()
 file_qrels_path = vars(args)['q']
 clusters_path = vars(args)['c']
 runtag1=vars(args)['a']
 runtag2=vars(args)['b']
+recall_path=vars(args)['r']
 
 run_path1 = "run_results/"+runtag1
 run_path2 = "run_results/"+runtag2
-recall_path="fuse_recall_results_on_official_clusters_by_cluster_size_union.txt"
+# recall_path="fuse_recall_results_on_official_clusters_by_cluster_size_union.txt"
 #Take qrels to generate dictionary of {topic number:{tweetid:weight}} 
 #where weight is 0(non-relevant), 1(relevant), 2(highly relevant)
 qrels_dt = {}

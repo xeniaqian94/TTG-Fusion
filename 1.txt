@@ -1,0 +1,13 @@
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3042
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3811
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3811
+1unique2        	EM100           	all 	      0.3885	      0.5743	    0.3811
