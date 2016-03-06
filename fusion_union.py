@@ -205,7 +205,7 @@ if __name__=="__main__":
    clusters_path = vars(args)['c']
    recall_path=vars(args)['o']
    run_results=vars(args)['r']
-   if run_results="run_results":
+   if run_results=="run_results":
       run_results_label="all"
    else:
       run_results_label="sub"
