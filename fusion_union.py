@@ -255,9 +255,10 @@ if __name__=="__main__":
       runtags.remove('.DS_Store')
    start = timeit.default_timer()
 
-   thresholds=[0.7,0.8,0.85,0.9,0.95,0.97,0.99]
+   thresholds=[0.6,0.7,0.8,0.85,0.9,0.95,0.97,0.99]
 
    for threshold in thresholds:
+      print str(threshold)+": deduplication for that many pairs used "+str(timeit.default_timer() - start)+" seconds"
       recall_path_new=recall_path[0:recall_path.index(".txt")]+"_"+run_results_label+"_"+str(threshold)+"_"+str(dimension)+".txt"
       file_write=open(recall_path_new,'w')
       file_write.write("runtag1".ljust(16) + "\t"+"runtag2".ljust(16) + "\ttopic".ljust(5)+"\tunweighted_recall".ljust(13)+"\tweighted_recall".ljust(12)+"\tprecision".ljust(10)+"\tf1".ljust(10)+"\n")
