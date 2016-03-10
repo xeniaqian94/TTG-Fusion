@@ -81,7 +81,7 @@ ax.plot(recall, precision, 'ro',alpha=0.5,label='union')
 recall=[]
 precision=[]
 # file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
-file_input=open('fuse_union_'+threshold+'_'+dimension+'.txt','r')
+file_input=open('fuse_union_sub_'+threshold+'_'+dimension+'.txt','r')
 lines=file_input.readlines()
 for i in range(1,len(lines)):
    line=lines[i].strip().split()
@@ -92,19 +92,19 @@ for i in range(1,len(lines)):
 ax.plot(recall, precision, 'bo',alpha=0.3,label=str('union '+threshold+' '+dimension))
 ax.legend(loc=1,numpoints=1)
 
-recall=[]
-precision=[]
-# file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
-file_input=open('fuse_union_groundtruth.txt','r')
-lines=file_input.readlines()
-for i in range(1,len(lines)):
-   line=lines[i].strip().split()
-   if line[2]=="all":
-      recall.append(float(line[recall_type]))
-      precision.append(float(line[5]))
+# recall=[]
+# precision=[]
+# # file_input=open('fuse_recall_results_on_official_clusters_by_cluster_size_union_deduplicate_based_on_cluster.txt','r')
+# file_input=open('fuse_union_groundtruth.txt','r')
+# lines=file_input.readlines()
+# for i in range(1,len(lines)):
+#    line=lines[i].strip().split()
+#    if line[2]=="all":
+#       recall.append(float(line[recall_type]))
+#       precision.append(float(line[5]))
 
-ax.plot(recall, precision, 'mo',alpha=0.3,label='union deduplicate (groundtruth)')
-ax.legend(loc=1,numpoints=1)
+# ax.plot(recall, precision, 'mo',alpha=0.3,label='union deduplicate (groundtruth)')
+# ax.legend(loc=1,numpoints=1)
 
 
 x=np.arange(0.01,1.1,0.01)
