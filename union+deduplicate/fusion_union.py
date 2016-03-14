@@ -79,7 +79,11 @@ def sentenceRedundency(list1,list2,word_vecs,dimension):
    else:
       return 0
 
-
+def jaccardSimilarity(list1,list2):
+   if len(list1)!=0 and len(list2)!=0:
+      return 1.0*len(set(list1).intersection(list2))/len(set(list1).union(list2))
+   else:
+      return 0
 
 def gloveDeduplicate(list_before_filter,tweetDict,word_vecs,threshold,dimension):
    fused_run_dt=[]
@@ -93,6 +97,20 @@ def gloveDeduplicate(list_before_filter,tweetDict,word_vecs,threshold,dimension)
          fused_run_dt.append(tweet)
 
    return fused_run_dt
+
+def jaccardDeduplicate(list_before_filter,tweetDict,threshold):
+   fused_run_dt=[]
+
+   for tweet in list_before_filter:
+      flag=1
+      for previous_tweet in fused_run_dt:
+         if jaccardSimilarity(tweetDict[previous_tweet],tweetDict[tweet])>threshold:
+            flag=0
+      if flag==1:
+         fused_run_dt.append(tweet)
+
+   return fused_run_dt
+
 
 def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict,word_vecs,threshold,dimension):
    run_path1 = "run_results/"+runtag1
@@ -135,7 +153,8 @@ def calRecallPrecision(runtag1,runtag2,topics,file_write,tweetDict,word_vecs,thr
       # fused_run_dt=groundtruthDeduplicate(clusters_run_dt[topic_ind],clusters_dt,topic_ind)
       # fused_run_dt=clusters_run_dt[topic_ind]
 
-      fused_run_dt=gloveDeduplicate(clusters_run_dt[topic_ind],tweetDict,word_vecs,threshold,dimension)
+      # fused_run_dt=gloveDeduplicate(clusters_run_dt[topic_ind],tweetDict,word_vecs,threshold,dimension)
+      fused_run_dt=jaccardDeduplicate(clusters_run_dt[topic_ind],tweetDict,threshold)
       
 
       for cluster in clusters_dt[topic_ind]:
@@ -237,7 +256,8 @@ if __name__=="__main__":
    print tweetDict['313138436146094081']
    # w2v=load_bin_vec('glove.twitter.27B.25d.txt') 
    start = timeit.default_timer()
-   word_vecs=load_vec('glove.twitter.27B.'+dimension+'d.txt',1193517)
+   # word_vecs=load_vec('glove.twitter.27B.'+dimension+'d.txt',1193517)
+   word_vecs={}
    stop = timeit.default_timer()
    print "Read word vector cost "+str(stop - start)+" seconds"
 
@@ -255,7 +275,7 @@ if __name__=="__main__":
       runtags.remove('.DS_Store')
    start = timeit.default_timer()
 
-   thresholds=[0.6,0.7,0.8,0.85,0.9,0.95,0.97,0.99]
+   thresholds=[0.4,0.5,0.55,0.6,0.65,0.7,0.8,0.9,0.95,0.99]
 
    for threshold in thresholds:
       print str(threshold)+": deduplication for that many pairs used "+str(timeit.default_timer() - start)+" seconds"

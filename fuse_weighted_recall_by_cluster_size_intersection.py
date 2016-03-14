@@ -17,9 +17,9 @@ clusters_path = vars(args)['c']
 runtag1=vars(args)['a']
 runtag2=vars(args)['b']
 
-run_path1 = "../run_results/"+runtag1
-run_path2 = "../run_results/"+runtag2
-recall_path="fuse_recall_results_on_official_clusters_by_cluster_size_intersection.txt"
+run_path1 = "run_results/"+runtag1
+run_path2 = "run_results/"+runtag2
+recall_path="fuse_recall_results_on_official_clusters_by_cluster_size_intersection_sub.txt"
 #Take qrels to generate dictionary of {topic number:{tweetid:weight}} 
 #where weight is 0(non-relevant), 1(relevant), 2(highly relevant)
 qrels_dt = {}

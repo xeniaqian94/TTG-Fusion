@@ -288,7 +288,7 @@ if __name__=="__main__":
       runtags.remove('.DS_Store')
    start = timeit.default_timer()
 
-   thresholds=[0.0,0.005,0.01,0.02,0.03,0.05,0.10,0.15,0.20,0.30,0.40,0.50]
+   thresholds=[0.6,0.7,0.8,0.9,0.95,0.97,0.99]
    # thresholds=[0.005,0.01,0.02,0.03]
    # thresholds=[100]
 
